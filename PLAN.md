@@ -4,8 +4,8 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 
 ## Checklist Générale
 
-- [ ] Étape 0 : Configuration du Projet et Architecture de Base
-- [ ] Étape 1 : Phase 1 - Écrans et Logique du Questionnaire d'Onboarding
+- [x] Étape 0 : Configuration du Projet et Architecture de Base
+- [x] Étape 1 : Phase 1 - Écrans et Logique du Questionnaire d'Onboarding
 - [ ] Étape 2 : Modèles de Données et Service de Repository (Simulation)
 - [ ] Étape 3 : Phase 2 - Interface du Jeu de Sélection ("L'entonnoir à idées")
 - [ ] Étape 4 : Logique du Jeu de Sélection avec Riverpod
