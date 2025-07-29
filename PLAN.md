@@ -10,7 +10,7 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 3 : Phase 2 - Interface du Jeu de Sélection ("L'entonnoir à idées")
 - [x] Étape 4 : Logique du Jeu de Sélection avec Riverpod
 - [x] Étape 5 : Configuration et Connexion à Firebase
-- [ ] Étape 6 : Intégration de Firestore pour les Produits
+- [x] Étape 6 : Intégration de Firestore pour les Produits
 - [ ] Étape 7 : Redirection vers le Site Partenaire
 - [ ] Étape 8 : Authentification Utilisateur (Optionnelle)
 - [ ] Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
