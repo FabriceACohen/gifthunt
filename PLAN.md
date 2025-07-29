@@ -13,8 +13,74 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 6 : Intégration de Firestore pour les Produits
 - [x] Étape 7 : Redirection vers le Site Partenaire
 - [x] Étape 7.5 : Amélioration du Design et Thème de Couleurs
-- [ ] Étape 7.6 : Stratégie de Récupération de Produits Amazon (Backend)
-- [ ] Étape 8 : Authentification Utilisateur (Optionnelle)
+## Étape 7.6 : Stratégie de Récupération de Produits Amazon (Backend)
+
+**Objectif :** Mettre en place une architecture sécurisée et conforme aux politiques d'Amazon pour la récupération des produits, en utilisant un service backend comme intermédiaire entre l'application Flutter et l'API Amazon, et alimenter Firestore avec ces données.
+
+**Contexte et Justification :**
+*   **Sécurité et Conformité Amazon :** L'API Amazon Product Advertising (PA-API) nécessite des clés d'accès (Access Key ID, Secret Access Key, Partner Tag). Exposer ces clés directement dans une application mobile (Flutter) est une faille de sécurité majeure et est strictement interdit par les politiques d'Amazon. De plus, Amazon impose des restrictions sur le stockage des données de produits.
+*   **Rôle du Backend :** Un service backend dédié est indispensable. Il agira comme un proxy sécurisé : l'application Flutter communiquera avec ce backend, qui à son tour interrogera l'API Amazon en toute sécurité, traitera les données, et les stockera (ou les mettra à jour) dans Firestore.
+
+**Architecture Proposée :**
+
+```
++-------------------+       +-------------------+       +-------------------+       +-------------------+
+|   Flutter App     | <---> |   Votre Backend   | <---> |   Amazon PA-API   | <---> |   Base de Données |
+| (GiftHunt)        |       | (Firebase Fns/AWS |       | (Produits Amazon) |       |   Firestore       |
+|                   |       |   Lambda/Node.js) |       |                   |       | (Collection 'products')|
++-------------------+       +-------------------+       +-------------------+       +-------------------+
+      ^                               |
+      |                               |
+      +-------------------------------+
+        Requêtes de produits (via HTTPS)
+        (basées sur GiftProfile)
+```
+
+**Flux d'Interaction Détaillé :**
+
+1.  **Depuis l'Application Flutter :**
+    *   Lorsque l'utilisateur termine le questionnaire d'onboarding (`GiftProfile`) ou demande de nouveaux produits, l'application Flutter enverra une requête HTTP (par exemple, via Firebase Functions Callable Cloud Functions ou une API REST personnalisée) à votre service backend.
+    *   Cette requête inclura les critères de recherche basés sur le `GiftProfile` de l'utilisateur (intérêts, occasions, types de cadeaux, budget).
+    *   L'application Flutter *ne fera aucune requête directe* à l'API Amazon.
+
+2.  **Dans le Service Backend :**
+    *   Le service backend recevra la requête de l'application Flutter.
+    *   Il utilisera ses propres clés d'API Amazon (stockées en toute sécurité, par exemple dans des variables d'environnement) pour interroger l'API Amazon Product Advertising (PA-API).
+    *   **Critères de Recherche Amazon :** Le backend traduira les critères du `GiftProfile` en paramètres de recherche pour l'API Amazon :
+        *   `interests` (intérêts) -> Mots-clés de recherche (`Keywords`) ou Catégories (`BrowseNodeId`).
+        *   `occasions` (occasions) -> Peut affiner les mots-clés ou être utilisé pour des filtres spécifiques si l'API le permet.
+        *   `giftTypes` (types de cadeaux) -> Peut être utilisé pour filtrer les résultats ou affiner les mots-clés.
+        *   `budget` (budget) -> Plage de prix (`MinPrice`, `MaxPrice`).
+    *   Le backend combinera ces critères pour obtenir les résultats les plus pertinents d'Amazon, puis les stockera dans la collection `products` de votre base de données Firestore.
+
+3.  **Retour à l'Application Flutter :**
+    *   Une fois que le backend a mis à jour Firestore, l'application Flutter (via `FirestoreProductRepository`) pourra récupérer les produits pertinents directement depuis Firestore.
+    *   La logique de `fetchInitialProducts` et `fetchNextProducts` dans `FirestoreProductRepository` devra être adaptée pour interroger Firestore avec des filtres basés sur les critères du `GiftProfile` ou du `chosenProduct`, en supposant que le backend a déjà pré-filtré et stocké des produits pertinents.
+
+**Étapes de Réalisation (pour le développeur) :**
+
+1.  **Conception et Développement du Service Backend :**
+    *   Choisir une technologie backend (ex: Firebase Functions avec Node.js/Python, AWS Lambda, un serveur Node.js/Python/Go/Java).
+    *   Implémenter la logique d'appel à l'API Amazon PA-API.
+    *   Mettre en place la logique de transformation des critères `GiftProfile` en requêtes Amazon.
+    *   Implémenter la logique de stockage/mise à jour des produits dans la collection `products` de Firestore.
+    *   Exposer une API (par exemple, un endpoint HTTPS) que l'application Flutter pourra appeler.
+2.  **Mise à jour de `FirestoreProductRepository` (Flutter) :**
+    *   Modifier `fetchInitialProducts` et `fetchNextProducts` pour qu'ils appellent le nouveau service backend (via HTTP) au lieu de directement interroger Firestore pour la *recherche initiale* de produits.
+    *   Le backend se chargera d'alimenter Firestore, et le `FirestoreProductRepository` pourra ensuite lire les produits pertinents de Firestore.
+
+**Critères de Sélection des Produits (par le Backend) :**
+
+Le service backend utilisera les informations du `GiftProfile` pour construire des requêtes intelligentes vers l'API Amazon. Par exemple :
+
+*   **Intérêts :** Mots-clés de recherche (`Keywords`) ou Catégories (`BrowseNodeId`).
+*   **Occasions :** Peut affiner les mots-clés ou être utilisé pour des filtres spécifiques si l'API le permet.
+*   **Types de cadeaux :** Peut être utilisé pour des filtres de catégorie ou des mots-clés (ex: "carte cadeau", "expérience culinaire").
+*   **Budget :** Plage de prix (`MinPrice`, `MaxPrice`).
+
+Le backend combinera ces critères pour obtenir les résultats les plus pertinents d'Amazon, puis les stockera dans Firestore.
+
+## Étape 8 : Authentification Utilisateur (Optionnelle)
 - [ ] Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
 
 ---
