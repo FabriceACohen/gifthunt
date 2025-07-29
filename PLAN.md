@@ -12,6 +12,7 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 5 : Configuration et Connexion à Firebase
 - [x] Étape 6 : Intégration de Firestore pour les Produits
 - [x] Étape 7 : Redirection vers le Site Partenaire
+- [ ] Étape 7.5 : Amélioration du Design et Thème de Couleurs
 - [ ] Étape 8 : Authentification Utilisateur (Optionnelle)
 - [ ] Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
 
@@ -64,7 +65,7 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 4.  **Navigation :** À la fin du questionnaire, un bouton "Lancer la chasse" doit naviguer vers l'écran du jeu (`/game`).
 
 ### Tests pour l'Étape 1 :
-*   **Test unitaire :** Tester le `GiftProfileNotifier` pour s'assurer que la sélection d'une réponse met correctement à jour l'état du `GiftProfile`.
+*   **Test unitaire :** Tester le `Notifier` pour s'assurer que la sélection d'une réponse met correctement à jour l'état du `GiftProfile`.
 *   **Test de widget :** Vérifier que l'interface du questionnaire s'affiche, que la sélection d'une option met à jour l'UI, et que le bouton de navigation fonctionne.
 
 ---
@@ -196,6 +197,36 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 *   **Test de widget pour `GameScreen` :**
     *   Simuler le tap sur les boutons "Acheter sur Amazon" et "Voir sur Amazon".
     *   Vérifier que `url_launcher` est appelé avec la bonne URL (nécessite un mock de `url_launcher`).
+
+---
+
+## Étape 7.5 : Amélioration du Design et Thème de Couleurs
+
+**Objectif :** Moderniser l'interface utilisateur et appliquer un thème de couleurs cohérent.
+
+1.  **Ajouter la dépendance `google_fonts` :** Inclure `google_fonts` dans `pubspec.yaml` pour des polices modernes.
+2.  **Définir un Thème de Couleurs et Typographie :**
+    *   Dans `main.dart`, définir une `ColorScheme` personnalisée avec des couleurs vibrantes et modernes.
+    *   Utiliser `GoogleFonts` pour définir une typographie élégante pour l'ensemble de l'application.
+    *   Appliquer ce thème au `MaterialApp` principal.
+3.  **Mise à jour des Widgets existants :**
+    *   **`OnboardingScreen` :**
+        *   Styliser les `Text` pour utiliser la nouvelle typographie et les couleurs du thème.
+        *   Améliorer l'apparence des `Card` et `ListTile` dans `MultiChoiceQuestionWidget` pour un look plus moderne (bordures arrondies, ombres subtiles, couleurs de sélection).
+        *   Styliser le `Slider` pour correspondre au thème.
+        *   Remplacer les `FloatingActionButton` par des `ElevatedButton` ou `FilledButton` stylisés avec les couleurs du thème.
+    *   **`GameScreen` :**
+        *   Styliser les `Card` des produits pour un design plus attrayant (bordures, ombres, coins arrondis).
+        *   Améliorer l'affichage des images (placeholders plus esthétiques en cas d'erreur de chargement).
+        *   Styliser les boutons "Acheter sur Amazon" et "Voir sur Amazon" pour qu'ils correspondent au thème.
+        *   Ajouter des icônes pertinentes aux boutons.
+4.  **Ajout d'éléments visuels :**
+    *   Considérer l'ajout d'un arrière-plan subtil ou d'un dégradé sur certains écrans.
+    *   Utiliser des icônes Material Design ou d'autres packs d'icônes si nécessaire.
+
+### Tests pour l'Étape 7.5 :
+*   **Vérification visuelle :** Lancer l'application en mode debug et inspecter visuellement les écrans pour s'assurer que le design est amélioré, que les couleurs sont appliquées correctement et que les icônes/images s'affichent comme prévu.
+*   **Tests de widget existants :** S'assurer que les modifications de design n'ont pas cassé les fonctionnalités existantes et que les tests de widget précédents passent toujours.
 
 ---
 
