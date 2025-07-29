@@ -14,7 +14,6 @@ class FakeProductRepository implements ProductRepository {
       const Product(id: '1', name: 'Smartwatch', imageUrl: 'https://example.com/smartwatch.jpg', tags: ['tech', 'sport']),
       const Product(id: '2', name: 'Livre de cuisine', imageUrl: 'https://example.com/cookbook.jpg', tags: ['cuisine', 'lecture']),
       const Product(id: '3', name: 'Casque audio', imageUrl: 'https://example.com/headphones.jpg', tags: ['tech', 'musique']),
-      const Product(id: '4', name: 'Billet de concert', imageUrl: 'https://example.com/concert.jpg', tags: ['musique', 'expérience']),
     ];
   }
 
