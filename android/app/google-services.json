@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "229756670121",
+    "project_id": "gifthunt-e922b",
+    "storage_bucket": "gifthunt-e922b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229756670121:android:ccbdbb2a78a49dcf7cd9b8",
+        "android_client_info": {
+          "package_name": "com.example.gifthunt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOjfin9dwulDy8aaMb8oaOXROQfTl1bL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229756670121:android:75fb7087a4bd323f7cd9b8",
+        "android_client_info": {
+          "package_name": "fr.lesanico.gifthunt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOjfin9dwulDy8aaMb8oaOXROQfTl1bL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
