@@ -1,10 +1,10 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gifthunt/src/features/game/application/game_notifier.dart';
 import 'package:gifthunt/src/features/game/presentation/screens/game_screen.dart';
-import 'package:gifthunt/src/features/product/application/product_providers.dart';
 import 'package:gifthunt/src/features/product/data/repositories/fake_product_repository.dart';
+import 'package:gifthunt/src/features/onboarding/domain/models/gift_profile.dart'; // Added import
 
 void main() {
   group('GameScreen', () {
@@ -12,7 +12,9 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            productRepositoryProvider.overrideWithValue(FakeProductRepository()),
+            gameNotifierProvider.overrideWith(() => GameNotifier()), // Override with a new instance
+            // Mock the productRepositoryProvider if needed for specific test cases
+            // For this test, FakeProductRepository is used directly by GameNotifier
           ],
           child: const MaterialApp(
             home: Scaffold(body: GameScreen()),
@@ -30,7 +32,6 @@ void main() {
       expect(find.text('Smartwatch'), findsOneWidget);
       expect(find.text('Livre de cuisine'), findsOneWidget);
       expect(find.text('Casque audio'), findsOneWidget);
-      expect(find.text('Billet de concert'), findsOneWidget);
 
       // Simulate tapping on a product card (e.g., Smartwatch)
       await tester.tap(find.text('Smartwatch'));

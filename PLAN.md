@@ -8,7 +8,7 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 1 : Phase 1 - Écrans et Logique du Questionnaire d'Onboarding
 - [x] Étape 2 : Modèles de Données et Service de Repository (Simulation)
 - [x] Étape 3 : Phase 2 - Interface du Jeu de Sélection ("L'entonnoir à idées")
-- [ ] Étape 4 : Logique du Jeu de Sélection avec Riverpod
+- [x] Étape 4 : Logique du Jeu de Sélection avec Riverpod
 - [ ] Étape 5 : Configuration et Connexion à Firebase
 - [ ] Étape 6 : Intégration de Firestore pour les Produits
 - [ ] Étape 7 : Redirection vers le Site Partenaire
