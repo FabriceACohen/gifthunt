@@ -2,9 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gifthunt/src/features/game/application/game_notifier.dart';
-import 'package:gifthunt/src/features/product/domain/models/product.dart';
-import 'package:gifthunt/src/features/onboarding/domain/models/gift_profile.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // Wrapper function for launching URLs, to make it testable
 Future<void> _launchUrl(String urlString) async {
@@ -33,7 +32,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gift Hunt Game'),
+        title: Text('Gift Hunt Game', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: gameNotifierState.when(
         data: (products) {
@@ -53,6 +53,8 @@ class _GameScreenState extends ConsumerState<GameScreen> {
               final product = products[index];
               return Card(
                 clipBehavior: Clip.antiAlias, // For rounded corners on image
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: InkWell(
                   onTap: () {
                     gameNotifier.selectProduct(product, index);
@@ -68,14 +70,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                           product.imageUrl,
                           fit: BoxFit.cover,
                           width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.broken_image)),
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(Icons.broken_image, size: 48, color: Theme.of(context).colorScheme.error),
+                          ),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           product.name,
-                          style: Theme.of(context).textTheme.titleSmall,
+                          style: GoogleFonts.poppins(
+                            textStyle: Theme.of(context).textTheme.titleSmall,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -103,6 +111,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                     );
                                   }
                                 },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
                                 child: const Text('Acheter sur Amazon'),
                               ),
                             ),
@@ -125,6 +138,11 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                                     );
                                   }
                                 },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Theme.of(context).colorScheme.primary,
+                                  side: BorderSide(color: Theme.of(context).colorScheme.primary),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
                                 child: const Text('Voir sur Amazon'),
                               ),
                             ),

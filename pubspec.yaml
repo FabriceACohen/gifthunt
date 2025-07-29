@@ -43,6 +43,7 @@ dependencies:
   freezed_annotation: ^3.0.0
   json_annotation: ^4.8.1
   url_launcher: ^6.2.2
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:

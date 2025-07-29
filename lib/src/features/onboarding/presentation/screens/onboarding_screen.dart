@@ -39,7 +39,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Onboarding'),
+        title: Text('Onboarding', style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.onPrimary)),
+        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: PageView(
         controller: _pageController,
@@ -80,7 +81,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               children: [
                 Text(
                   'Quel est votre budget ?',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Theme.of(context).colorScheme.primary),
                 ),
                 const SizedBox(height: 20),
                 Slider(
@@ -92,15 +93,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   onChanged: (value) {
                     giftProfileNotifier.updateBudget(value);
                   },
+                  activeColor: Theme.of(context).colorScheme.primary,
+                  inactiveColor: Theme.of(context).colorScheme.primary.withOpacity(0.3),
                 ),
-                Text('Budget: ${giftProfile.budget.round()} €'),
+                Text('Budget: ${giftProfile.budget.round()} €', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)),
               ],
             ),
           ),
         ],
       ),
       floatingActionButton: _currentPage == 3
-          ? FloatingActionButton.extended(
+          ? ElevatedButton.icon(
               onPressed: () {
                 // TODO: Save GiftProfile data (e.g., to Firebase or local storage)
                 // For now, just navigate
@@ -108,14 +111,26 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               },
               label: const Text('Lancer la chasse'),
               icon: const Icon(Icons.arrow_forward),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
             )
-          : FloatingActionButton(
+          : ElevatedButton(
               onPressed: () {
                 _pageController.nextPage(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeIn,
                 );
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.secondary,
+                foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                shape: const CircleBorder(),
+                padding: const EdgeInsets.all(16),
+              ),
               child: const Icon(Icons.arrow_forward),
             ),
     );

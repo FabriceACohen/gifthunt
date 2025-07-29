@@ -12,7 +12,7 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 5 : Configuration et Connexion à Firebase
 - [x] Étape 6 : Intégration de Firestore pour les Produits
 - [x] Étape 7 : Redirection vers le Site Partenaire
-- [ ] Étape 7.5 : Amélioration du Design et Thème de Couleurs
+- [x] Étape 7.5 : Amélioration du Design et Thème de Couleurs
 - [ ] Étape 8 : Authentification Utilisateur (Optionnelle)
 - [ ] Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
 
