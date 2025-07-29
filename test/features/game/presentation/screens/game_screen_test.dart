@@ -1,20 +1,50 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gifthunt/src/features/game/application/game_notifier.dart';
 import 'package:gifthunt/src/features/game/presentation/screens/game_screen.dart';
-import 'package:gifthunt/src/features/product/data/repositories/fake_product_repository.dart';
-import 'package:gifthunt/src/features/onboarding/domain/models/gift_profile.dart'; // Added import
+import 'package:gifthunt/src/features/product/application/product_providers.dart';
+import 'package:gifthunt/src/features/onboarding/domain/models/gift_profile.dart';
+import 'package:gifthunt/src/features/product/domain/models/product.dart';
+import 'package:gifthunt/src/features/product/domain/repositories/product_repository.dart';
+import 'package:mocktail/mocktail.dart';
+
+// Mock class for ProductRepository
+class MockProductRepository extends Mock implements ProductRepository {}
 
 void main() {
   group('GameScreen', () {
+    late MockProductRepository mockProductRepository;
+
+    setUpAll(() {
+      registerFallbackValue(const GiftProfile());
+      registerFallbackValue(const Product(id: '', name: '', imageUrl: '', tags: []));
+    });
+
+    setUp(() {
+      mockProductRepository = MockProductRepository();
+      // Mock initial products
+      when(() => mockProductRepository.fetchInitialProducts(any()))
+          .thenAnswer((_) async => [
+                const Product(id: '1', name: 'Smartwatch', imageUrl: 'url1', tags: []), 
+                const Product(id: '2', name: 'Livre de cuisine', imageUrl: 'url2', tags: []),
+                const Product(id: '3', name: 'Casque audio', imageUrl: 'url3', tags: []),
+              ]);
+      // Mock next products
+      when(() => mockProductRepository.fetchNextProducts(any()))
+          .thenAnswer((_) async => [
+                const Product(id: '4', name: 'Nouveau Produit 1', imageUrl: 'url4', tags: []),
+                const Product(id: '5', name: 'Nouveau Produit 2', imageUrl: 'url5', tags: []),
+              ]);
+    });
+
     testWidgets('GameScreen displays products and handles interactions', (WidgetTester tester) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            gameNotifierProvider.overrideWith(() => GameNotifier()), // Override with a new instance
-            // Mock the productRepositoryProvider if needed for specific test cases
-            // For this test, FakeProductRepository is used directly by GameNotifier
+            gameNotifierProvider.overrideWith(() => GameNotifier()),
+            productRepositoryProvider.overrideWithValue(mockProductRepository),
           ],
           child: const MaterialApp(
             home: Scaffold(body: GameScreen()),
@@ -28,7 +58,7 @@ void main() {
       // Wait for products to load
       await tester.pumpAndSettle();
 
-      // Verify products are displayed
+      // Verify initial products are displayed
       expect(find.text('Smartwatch'), findsOneWidget);
       expect(find.text('Livre de cuisine'), findsOneWidget);
       expect(find.text('Casque audio'), findsOneWidget);
@@ -44,7 +74,7 @@ void main() {
       await tester.pumpAndSettle();
       // SnackBar assertions are removed.
 
-      // Simulate tapping the "Voir sur Amazon" button for Livre de cuisine
+      // Simulate tapping the "Voir sur Amazon" button for Nouveau Produit 1
       await tester.tap(find.widgetWithText(OutlinedButton, 'Voir sur Amazon').at(1));
       await tester.pumpAndSettle();
       // SnackBar assertions are removed.

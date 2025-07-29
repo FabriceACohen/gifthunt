@@ -42,7 +42,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                 clipBehavior: Clip.antiAlias, // For rounded corners on image
                 child: InkWell(
                   onTap: () {
-                    gameNotifier.selectProduct(product);
+                    gameNotifier.selectProduct(product, index);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Selected ${product.name}')),
                     );

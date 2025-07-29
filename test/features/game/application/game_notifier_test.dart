@@ -50,16 +50,17 @@ void main() {
       final initialProducts = [
         const Product(id: '1', name: 'Product A', imageUrl: 'urlA', tags: []), 
         const Product(id: '2', name: 'Product B', imageUrl: 'urlB', tags: []),
+        const Product(id: '3', name: 'Product C', imageUrl: 'urlC', tags: []),
       ];
-      final nextProducts = [
-        const Product(id: '3', name: 'Product C', imageUrl: 'urlC', tags: []), 
-        const Product(id: '4', name: 'Product D', imageUrl: 'urlD', tags: []),
+      final newProductsFromRepo = [
+        const Product(id: '4', name: 'Product D', imageUrl: 'urlD', tags: []), 
+        const Product(id: '5', name: 'Product E', imageUrl: 'urlE', tags: []),
       ];
 
       when(() => mockProductRepository.fetchInitialProducts(any()))
           .thenAnswer((_) async => initialProducts);
       when(() => mockProductRepository.fetchNextProducts(initialProducts[0]))
-          .thenAnswer((_) async => nextProducts);
+          .thenAnswer((_) async => newProductsFromRepo);
 
       final container = ProviderContainer(
         overrides: [
@@ -72,10 +73,14 @@ void main() {
       // Ensure initial products are loaded first
       await gameNotifier.future;
 
-      await gameNotifier.selectProduct(initialProducts[0]);
+      await gameNotifier.selectProduct(initialProducts[0], 0); // Pass chosenIndex
       final products = await gameNotifier.future;
 
-      expect(products, nextProducts);
+      // Expected products after selection: chosen product at index 0, followed by new products
+      expect(products[0], initialProducts[0]);
+      expect(products[1], newProductsFromRepo[0]);
+      expect(products[2], newProductsFromRepo[1]);
+      expect(products.length, 3);
       verify(() => mockProductRepository.fetchNextProducts(initialProducts[0])).called(1);
     });
   });
