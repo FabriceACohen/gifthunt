@@ -63,18 +63,27 @@ void main() {
       expect(find.text('Livre de cuisine'), findsOneWidget);
       expect(find.text('Casque audio'), findsOneWidget);
 
-      // Simulate tapping on a product card (e.g., Smartwatch)
+      // Simulate tapping on the first product card (Smartwatch) - assuming it's at index 0
       await tester.tap(find.text('Smartwatch'));
       await tester.pumpAndSettle();
-      // SnackBar assertions are removed as they are unreliable in current test setup.
-      // Testing SnackBar visibility often requires mocking ScaffoldMessenger.
+
+      // Verify SnackBar is displayed for selection (if re-enabled)
+      // expect(find.byType(SnackBar), findsOneWidget);
+      // expect(find.descendant(of: find.byType(SnackBar), matching: find.text('Selected Smartwatch')), findsOneWidget);
+
+      // Verify that the selected product (Smartwatch) is still present and new products are loaded
+      expect(find.text('Smartwatch'), findsOneWidget); // Smartwatch should remain
+      expect(find.text('Nouveau Produit 1'), findsOneWidget);
+      expect(find.text('Nouveau Produit 2'), findsOneWidget);
+      expect(find.text('Livre de cuisine'), findsNothing); // Old product should be replaced
+      expect(find.text('Casque audio'), findsNothing); // Old product should be replaced
 
       // Simulate tapping the "Acheter sur Amazon" button for Smartwatch
       await tester.tap(find.widgetWithText(ElevatedButton, 'Acheter sur Amazon').first);
       await tester.pumpAndSettle();
-      // SnackBar assertions are removed.
+      // SnackBar assertions are removed as they are unreliable in current test setup.
 
-      // Simulate tapping the "Voir sur Amazon" button for Nouveau Produit 1
+      // Simulate tapping the "Voir sur Amazon" button for Nouveau Produit 1 (assuming it's at index 1 now)
       await tester.tap(find.widgetWithText(OutlinedButton, 'Voir sur Amazon').at(1));
       await tester.pumpAndSettle();
       // SnackBar assertions are removed.
