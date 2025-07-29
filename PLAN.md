@@ -13,77 +13,10 @@ Ce document détaille les étapes incrémentales pour la construction de l'appli
 - [x] Étape 6 : Intégration de Firestore pour les Produits
 - [x] Étape 7 : Redirection vers le Site Partenaire
 - [x] Étape 7.5 : Amélioration du Design et Thème de Couleurs
-## Étape 7.6 : Stratégie de Récupération de Produits Amazon (Backend)
+- [ ] Étape 8 : Stratégie de Récupération de Produits Amazon (Backend)
+- [ ] Étape 9 : Authentification Utilisateur (Optionnelle)
+- [ ] Étape 10 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
 
-**Objectif :** Mettre en place une architecture sécurisée et conforme aux politiques d'Amazon pour la récupération des produits, en utilisant un service backend comme intermédiaire entre l'application Flutter et l'API Amazon, et alimenter Firestore avec ces données.
-
-**Contexte et Justification :**
-*   **Sécurité et Conformité Amazon :** L'API Amazon Product Advertising (PA-API) nécessite des clés d'accès (Access Key ID, Secret Access Key, Partner Tag). Exposer ces clés directement dans une application mobile (Flutter) est une faille de sécurité majeure et est strictement interdit par les politiques d'Amazon. De plus, Amazon impose des restrictions sur le stockage des données de produits.
-*   **Rôle du Backend :** Un service backend dédié est indispensable. Il agira comme un proxy sécurisé : l'application Flutter communiquera avec ce backend, qui à son tour interrogera l'API Amazon en toute sécurité, traitera les données, et les stockera (ou les mettra à jour) dans Firestore.
-
-**Architecture Proposée :**
-
-```
-+-------------------+       +-------------------+       +-------------------+       +-------------------+
-|   Flutter App     | <---> |   Votre Backend   | <---> |   Amazon PA-API   | <---> |   Base de Données |
-| (GiftHunt)        |       | (Firebase Fns/AWS |       | (Produits Amazon) |       |   Firestore       |
-|                   |       |   Lambda/Node.js) |       |                   |       | (Collection 'products')|
-+-------------------+       +-------------------+       +-------------------+       +-------------------+
-      ^                               |
-      |                               |
-      +-------------------------------+
-        Requêtes de produits (via HTTPS)
-        (basées sur GiftProfile)
-```
-
-**Flux d'Interaction Détaillé :**
-
-1.  **Depuis l'Application Flutter :**
-    *   Lorsque l'utilisateur termine le questionnaire d'onboarding (`GiftProfile`) ou demande de nouveaux produits, l'application Flutter enverra une requête HTTP (par exemple, via Firebase Functions Callable Cloud Functions ou une API REST personnalisée) à votre service backend.
-    *   Cette requête inclura les critères de recherche basés sur le `GiftProfile` de l'utilisateur (intérêts, occasions, types de cadeaux, budget).
-    *   L'application Flutter *ne fera aucune requête directe* à l'API Amazon.
-
-2.  **Dans le Service Backend :**
-    *   Le service backend recevra la requête de l'application Flutter.
-    *   Il utilisera ses propres clés d'API Amazon (stockées en toute sécurité, par exemple dans des variables d'environnement) pour interroger l'API Amazon Product Advertising (PA-API).
-    *   **Critères de Recherche Amazon :** Le backend traduira les critères du `GiftProfile` en paramètres de recherche pour l'API Amazon :
-        *   `interests` (intérêts) -> Mots-clés de recherche (`Keywords`) ou Catégories (`BrowseNodeId`).
-        *   `occasions` (occasions) -> Peut affiner les mots-clés ou être utilisé pour des filtres spécifiques si l'API le permet.
-        *   `giftTypes` (types de cadeaux) -> Peut être utilisé pour filtrer les résultats ou affiner les mots-clés.
-        *   `budget` (budget) -> Plage de prix (`MinPrice`, `MaxPrice`).
-    *   Le backend combinera ces critères pour obtenir les résultats les plus pertinents d'Amazon, puis les stockera dans la collection `products` de votre base de données Firestore.
-
-3.  **Retour à l'Application Flutter :**
-    *   Une fois que le backend a mis à jour Firestore, l'application Flutter (via `FirestoreProductRepository`) pourra récupérer les produits pertinents directement depuis Firestore.
-    *   La logique de `fetchInitialProducts` et `fetchNextProducts` dans `FirestoreProductRepository` devra être adaptée pour interroger Firestore avec des filtres basés sur les critères du `GiftProfile` ou du `chosenProduct`, en supposant que le backend a déjà pré-filtré et stocké des produits pertinents.
-
-**Étapes de Réalisation (pour le développeur) :**
-
-1.  **Conception et Développement du Service Backend :**
-    *   Choisir une technologie backend (ex: Firebase Functions avec Node.js/Python, AWS Lambda, un serveur Node.js/Python/Go/Java).
-    *   Implémenter la logique d'appel à l'API Amazon PA-API.
-    *   Mettre en place la logique de transformation des critères `GiftProfile` en requêtes Amazon.
-    *   Implémenter la logique de stockage/mise à jour des produits dans la collection `products` de Firestore.
-    *   Exposer une API (par exemple, un endpoint HTTPS) que l'application Flutter pourra appeler.
-2.  **Mise à jour de `FirestoreProductRepository` (Flutter) :**
-    *   Modifier `fetchInitialProducts` et `fetchNextProducts` pour qu'ils appellent le nouveau service backend (via HTTP) au lieu de directement interroger Firestore pour la *recherche initiale* de produits.
-    *   Le backend se chargera d'alimenter Firestore, et le `FirestoreProductRepository` pourra ensuite lire les produits pertinents de Firestore.
-
-**Critères de Sélection des Produits (par le Backend) :**
-
-Le service backend utilisera les informations du `GiftProfile` pour construire des requêtes intelligentes vers l'API Amazon. Par exemple :
-
-*   **Intérêts :** Mots-clés de recherche (`Keywords`) ou Catégories (`BrowseNodeId`).
-*   **Occasions :** Peut affiner les mots-clés ou être utilisé pour des filtres spécifiques si l'API le permet.
-*   **Types de cadeaux :** Peut être utilisé pour des filtres de catégorie ou des mots-clés (ex: "carte cadeau", "expérience culinaire").
-*   **Budget :** Plage de prix (`MinPrice`, `MaxPrice`).
-
-Le backend combinera ces critères pour obtenir les résultats les plus pertinents d'Amazon, puis les stockera dans Firestore.
-
-## Étape 8 : Authentification Utilisateur (Optionnelle)
-- [ ] Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
-
----
 
 ## Étape 0 : Configuration du Projet et Architecture de Base
 
@@ -295,11 +228,55 @@ Le backend combinera ces critères pour obtenir les résultats les plus pertinen
 *   **Vérification visuelle :** Lancer l'application en mode debug et inspecter visuellement les écrans pour s'assurer que le design est amélioré, que les couleurs sont appliquées correctement et que les icônes/images s'affichent comme prévu.
 *   **Tests de widget existants :** S'assurer que les modifications de design n'ont pas cassé les fonctionnalités existantes et que les tests de widget précédents passent toujours.
 
+## Étape 8 (Améliorée) : Stratégie Intelligente de Sélection de Produits via le Backend
+
+**Objectif :** Définir et implémenter une stratégie en deux temps pour la sélection de produits : une recherche initiale large basée sur le questionnaire, suivie d'un affinage itératif basé sur les choix de l'utilisateur pour créer un véritable entonnoir de pertinence.
+
+#### 1. Le Premier Appel : La Recherche Initiale (Post-Questionnaire)
+
+Lorsque l'utilisateur valide le questionnaire de la Phase 1, l'application n'interroge pas directement Firestore. Elle appelle une fonction backend (ex: une Cloud Function `getInitialProducts`) avec le `GiftProfile` complet.
+
+**Logique du Backend pour le premier appel :**
+
+1.  **Traduction des Critères :** Le backend traduit le `GiftProfile` en une requête complexe pour l'API Amazon.
+    *   **Centres d'intérêt (Tags) :** C'est le critère principal. Ils sont transformés en `Keywords` pour l'API. Si l'utilisateur a choisi "Geek" et "Gourmet", le backend ne cherche pas "Geek Gourmet", mais construit une recherche plus intelligente : `(cadeau geek) OR (cadeau gourmet)`.
+    *   **Occasion & Relation :** Ces critères affinent les `Keywords`. Pour "Anniversaire" et "Père", les mots-clés deviennent `(cadeau anniversaire père geek) OR (cadeau anniversaire père gourmet)`. Cela augmente considérablement la pertinence.
+    *   **Budget :** Ce critère est mappé directement sur `MinPrice` et `MaxPrice`.
+    *   **Genre & Âge :** Ces critères sont plus subtils. Ils peuvent être utilisés pour affiner davantage les mots-clés (ex: "homme", "ado") ou pour filtrer les catégories de produits (`BrowseNodeId`) si Amazon le permet.
+
+2.  **Stratégie de Diversification :** Pour la première proposition de 3 produits, le backend doit éviter de proposer trois fois la même chose. Il exécute donc plusieurs requêtes légèrement différentes pour assurer une diversité initiale :
+    *   **Requête 1 :** Ciblée sur le premier centre d'intérêt (ex: `cadeau anniversaire père geek`).
+    *   **Requête 2 :** Ciblée sur le second centre d'intérêt (ex: `cadeau anniversaire père gourmet`).
+    *   **Requête 3 :** Une combinaison ou une idée plus large (ex: `cadeau original homme 50-100€`).
+
+3.  **Enrichissement et Stockage :** Le backend récupère les meilleurs résultats de chaque requête, les **enrichit avec un système de tags internes** beaucoup plus granulaires que ceux de l'utilisateur (ex: un produit "Lego Star Wars" aura les tags `[lego, star-wars, geek, construction, film, collection, vaisseau-spatial]`), puis les stocke dans une collection temporaire ou les retourne directement à l'application.
+
+#### 2. La Boucle d'Affinage : Apprendre de Chaque Clic
+
+C'est ici que la magie opère. Quand l'utilisateur clique sur l'un des 3 produits, il ne fait pas qu'un simple choix. Il envoie un signal fort au backend sur ses préférences réelles.
+
+**Logique du Backend pour les appels suivants (`getNextProducts`) :**
+
+1.  **Analyse du Produit Choisi :** L'application envoie l'ID du produit choisi au backend. Le backend récupère ce produit depuis sa base de données (Firestore) et analyse sa liste de **tags internes enrichis**.
+    *   *Exemple :* L'utilisateur a choisi le "Lego Faucon Millenium" parmi un livre de cuisine et un t-shirt geek. Le backend voit les tags : `[lego, star-wars, geek, construction, film, collection]`.
+
+2.  **Déduction et Pondération :** Le backend en déduit que les tags `lego`, `star-wars`, et `construction` sont beaucoup plus pertinents que ce qu'il pensait initialement. Il augmente le "poids" de ces mots-clés pour les recherches futures.
+
+3.  **Stratégie de "Plongée et Exploration" pour les 2 nouveaux produits :** Le backend ne cherche pas juste "d'autres produits Lego". Il génère deux nouvelles propositions avec des intentions différentes :
+
+    *   **Proposition 1 (Plongée) :** Proposer un produit très similaire mais légèrement différent, pour affiner le besoin.
+        *   **Requête :** `Keywords: "lego star wars x-wing" OR "lego technic"`, en utilisant les tags les plus forts du produit choisi. On reste dans le même micro-univers pour voir si c'est bien la marque `Lego` ou le thème `Star Wars` qui plaît.
+
+    *   **Proposition 2 (Exploration) :** Proposer un produit qui partage des concepts ou des tags plus abstraits avec le produit choisi, pour élargir la découverte de manière pertinente.
+        *   **Requête :** `Keywords: "maquette vaisseau spatial à construire" OR "figurine de collection film"`. Ici, on teste les concepts de `construction`, `collection` et `film` qui étaient aussi dans les tags du Lego, mais en dehors de l'univers Lego/Star Wars.
+
+4.  **Mise à jour de l'UI :** Le backend retourne ces 2 nouveaux produits. L'application les affiche aux côtés du produit que l'utilisateur a conservé, créant ainsi l'effet d'entonnoir : "J'ai gardé ce que tu as aimé, et voici deux nouvelles idées basées sur ton choix."
+
 ---
 
-## Étape 8 : Authentification Utilisateur (Optionnelle)
+## Étape 9 : Authentification Utilisateur (Optionnelle)
 
-**Objectif :** Permettre aux utilisateurs de s'authentifier via Firebase Auth.
+**Objectif :** Permettre aux utilisateurs de s'authentifier via Firebase Auth pour accéder à des fonctionnalités supplémentaires.
 
 1.  **Implémenter le service d'authentification :**
     *   Créer un `AuthRepository` (abstrait) et une implémentation `FirebaseAuthRepository`.
@@ -311,7 +288,7 @@ Le backend combinera ces critères pour obtenir les résultats les plus pertinen
     *   Ajouter des écrans de connexion/inscription.
     *   Mettre à jour la navigation (`go_router`) pour gérer les états d'authentification (redirection vers l'onboarding si non connecté, vers le jeu si connecté).
 
-### Tests pour l'Étape 8 :
+### Tests pour l'Étape 9 :
 *   **Tests unitaires pour `AuthRepository` et `AuthNotifier` :**
     *   Vérifier les flux d'inscription, de connexion et de déconnexion.
     *   Mocker Firebase Auth pour les tests.
@@ -321,23 +298,26 @@ Le backend combinera ces critères pour obtenir les résultats les plus pertinen
 
 ---
 
-## Étape 9 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
+## Étape 10 : Sauvegarde des "Chasses" pour les Utilisateurs Connectés
 
 **Objectif :** Permettre aux utilisateurs connectés de sauvegarder leurs sessions de "chasse" (profils de cadeaux et produits sélectionnés).
 
-1.  **Modèle `Hunt` :** Créer un modèle de données pour représenter une session de chasse (incluant `GiftProfile` et les produits sélectionnés).
+1.  **Modèle `Hunt` :** Créer un modèle de données pour représenter une session de chasse (incluant `GiftProfile` et l'historique des produits sélectionnés).
 2.  **Implémenter `HuntRepository` :**
-    *   Créer un `FirestoreHuntRepository` pour sauvegarder et récupérer les sessions de chasse dans Firestore.
-3.  **Intégrer la sauvegarde dans `GameNotifier` :**
-    *   Modifier `GameNotifier` pour sauvegarder la session de chasse après la fin du processus de sélection ou à la demande de l'utilisateur.
+    *   Créer un `FirestoreHuntRepository` pour sauvegarder et récupérer les sessions de chasse dans une sous-collection de l'utilisateur dans Firestore.
+3.  **Intégrer la sauvegarde dans l'UI/Logique :**
+    *   Ajouter un bouton "Sauvegarder la chasse" dans l'écran de jeu.
+    *   Modifier le `GameNotifier` pour appeler le `HuntRepository` lors de la sauvegarde.
 4.  **Afficher les chasses sauvegardées :**
-    *   Créer un écran pour lister les chasses sauvegardées par l'utilisateur.
-    *   Permettre de recharger une chasse précédente.
+    *   Créer un écran de profil ou un écran dédié pour lister les chasses sauvegardées par l'utilisateur.
+    *   Permettre de recharger une chasse précédente pour la continuer ou la revoir.
 
-### Tests pour l'Étape 9 :
-*   **Tests unitaires pour `HuntRepository` et `GameNotifier` :**
+### Tests pour l'Étape 10 :
+*   **Tests unitaires pour `HuntRepository` :**
     *   Vérifier la sauvegarde et la récupération des sessions de chasse.
     *   Mocker Firestore.
 *   **Tests de widget pour l'écran des chasses sauvegardées :**
-    *   Vérifier l'affichage des chasses.
-    *   Simuler la sélection d'une chasse et vérifier son chargement.
+    *   Vérifier l'affichage de la liste des chasses.
+    *   Simuler la sélection d'une chasse et vérifier que l'application charge l'état correspondant.
+
+
