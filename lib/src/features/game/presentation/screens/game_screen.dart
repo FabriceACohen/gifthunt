@@ -44,50 +44,78 @@ class _GameScreenState extends ConsumerState<GameScreen> {
             return const Center(child: Text('No products found.'));
           } else {
             final products = snapshot.data!;
-            return ListView.builder(
+            return GridView.builder(
+              padding: const EdgeInsets.all(8.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3, // Display 3 products horizontally
+                crossAxisSpacing: 8.0,
+                mainAxisSpacing: 8.0,
+                childAspectRatio: 0.7, // Adjust as needed for content
+              ),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
                 return Card(
-                  margin: const EdgeInsets.all(8.0),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                  clipBehavior: Clip.antiAlias, // For rounded corners on image
+                  child: InkWell(
+                    onTap: () {
+                      // TODO: Implement product selection logic
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Selected ${product.name}')),
+                      );
+                    },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          product.name,
-                          style: Theme.of(context).textTheme.headlineSmall,
+                        Expanded(
+                          child: Image.network(
+                            product.imageUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) => const Center(child: Icon(Icons.broken_image)),
+                          ),
                         ),
-                        const SizedBox(height: 8.0),
-                        Text('ID: ${product.id}'),
-                        Text('Image URL: ${product.imageUrl}'),
-                        Text('Tags: ${product.tags.join(', ')}'),
-                        if (product.affiliationLink != null)
-                          Text('Affiliation Link: ${product.affiliationLink}'),
-                        const SizedBox(height: 16.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            ElevatedButton(
-                              onPressed: () {
-                                // TODO: Implement dislike logic
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Disliked ${product.name}')),
-                                );
-                              },
-                              child: const Text('Dislike'),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                // TODO: Implement like logic
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Liked ${product.name}')),
-                                );
-                              },
-                              child: const Text('Like'),
-                            ),
-                          ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            product.name,
+                            style: Theme.of(context).textTheme.titleSmall,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Spacer(), // Pushes buttons to the bottom
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // TODO: Implement "Buy on Amazon" logic
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Buying ${product.name} on Amazon')),
+                                    );
+                                  },
+                                  child: const Text('Acheter sur Amazon'),
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    // TODO: Implement "View on Amazon" logic
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Viewing ${product.name} on Amazon')),
+                                    );
+                                  },
+                                  child: const Text('Voir sur Amazon'),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
