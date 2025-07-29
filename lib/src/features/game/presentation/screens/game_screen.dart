@@ -4,9 +4,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gifthunt/src/features/game/application/game_notifier.dart';
 import 'package:gifthunt/src/features/product/domain/models/product.dart';
 import 'package:gifthunt/src/features/onboarding/domain/models/gift_profile.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+// Wrapper function for launching URLs, to make it testable
+Future<void> _launchUrl(String urlString) async {
+  final Uri url = Uri.parse(urlString);
+  if (await canLaunchUrl(url)) {
+    await launchUrl(url);
+  } else {
+    throw 'Could not launch $urlString';
+  }
+}
 
 class GameScreen extends ConsumerStatefulWidget {
-  const GameScreen({super.key});
+  final Future<void> Function(String urlString) launchUrl;
+
+  const GameScreen({super.key, this.launchUrl = _launchUrl});
 
   @override
   ConsumerState<GameScreen> createState() => _GameScreenState();
@@ -75,11 +88,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // TODO: Implement "Buy on Amazon" logic
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Buying ${product.name} on Amazon')),
-                                  );
+                                onPressed: () async {
+                                  if (product.affiliationLink != null) {
+                                    try {
+                                      await widget.launchUrl(product.affiliationLink!); // Use widget.launchUrl
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error launching URL: $e')),
+                                      );
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('No affiliation link available')),
+                                    );
+                                  }
                                 },
                                 child: const Text('Acheter sur Amazon'),
                               ),
@@ -88,11 +110,20 @@ class _GameScreenState extends ConsumerState<GameScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton(
-                                onPressed: () {
-                                  // TODO: Implement "View on Amazon" logic
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('Viewing ${product.name} on Amazon')),
-                                  );
+                                onPressed: () async {
+                                  if (product.affiliationLink != null) {
+                                    try {
+                                      await widget.launchUrl(product.affiliationLink!); // Use widget.launchUrl
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text('Error launching URL: $e')),
+                                      );
+                                    }
+                                  } else {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('No affiliation link available')),
+                                    );
+                                  }
                                 },
                                 child: const Text('Voir sur Amazon'),
                               ),
